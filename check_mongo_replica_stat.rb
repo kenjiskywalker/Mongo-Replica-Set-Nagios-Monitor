@@ -16,6 +16,7 @@
 #
 
 require 'net/http'
+require 'uri'
 require 'optparse'
 
 @options = { :host => 'localhost', :port => 28017}
@@ -31,12 +32,17 @@ OptionParser.new do |opts|
 end.parse!
 
 begin
-  resource = Net::HTTP.new(@options[:host], @options[:port])
-  headers,data = resource.get('/replSetGetStatus?text')
+  url = URI.parse("http://#{@options[:host]}/replSetGetStatus?text")
+  req = Net::HTTP::Get.new(url.path)
+  res = Net::HTTP.start(url.host, @options[:port]) {|http|
+    http.request(req)
+  }
 rescue Exception => e
   puts "ERROR: Unable to connect to #{@options[:host]}:#{@options[:port]} - #{e.message}"
   exit 2
 end
+
+data = res.body
 
 # there has to be a better way to do this
 data.gsub!(':', '=>')
