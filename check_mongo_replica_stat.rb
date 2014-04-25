@@ -58,7 +58,7 @@ end
 rc = 0
 have_master = false
 status['members'].each do |member|
-  if member['state'] > 2
+  if member['state'] > 2 and member['state'] != 7
     print "ERROR: #{member['name']} state #{member['state']} "
     rc = 2
   end
